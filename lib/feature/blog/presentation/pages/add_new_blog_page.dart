@@ -1,7 +1,11 @@
+import 'dart:io';
+
 import 'package:blog_app_clean_architecture/core/theme/app_pallete.dart';
+import 'package:blog_app_clean_architecture/core/utils/pick_image.dart';
 import 'package:blog_app_clean_architecture/feature/blog/presentation/widgets/blog_editor.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
 class AddNewBlogPage extends StatefulWidget {
   static route() =>
@@ -16,6 +20,17 @@ class _AddNewBlogPageState extends State<AddNewBlogPage> {
   final titleController = TextEditingController();
   final contentController = TextEditingController();
   List<String> selectedTopics = [];
+  File? image;
+
+  void selectImage() async {
+    final pickedImage = await pickImage();
+    if (pickedImage != null) {
+      setState(() {
+        image = pickedImage;
+      });
+    }
+  }
+
   @override
   void dispose() {
     super.dispose();
@@ -40,31 +55,42 @@ class _AddNewBlogPageState extends State<AddNewBlogPage> {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              DottedBorder(
-                color: AppPallete.borderColor,
-                dashPattern: [10, 4],
-                radius: const Radius.circular(10),
-                borderType: BorderType.RRect,
-                strokeCap: StrokeCap.round,
-                child: Container(
-                  height: 150,
-                  width: double.infinity,
-                  child: const Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.folder_open,
-                        size: 40,
+              image != null
+                  ? SizedBox(
+                      height: 150,
+                      width: double.infinity,
+                      child: Image.file(image!),
+                    )
+                  : GestureDetector(
+                      onTap: () {
+                        selectImage();
+                      },
+                      child: DottedBorder(
+                        color: AppPallete.borderColor,
+                        dashPattern: [10, 4],
+                        radius: const Radius.circular(10),
+                        borderType: BorderType.RRect,
+                        strokeCap: StrokeCap.round,
+                        child: Container(
+                          height: 150,
+                          width: double.infinity,
+                          child: const Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.folder_open,
+                                size: 40,
+                              ),
+                              SizedBox(height: 15),
+                              Text(
+                                'Select your image',
+                                style: TextStyle(fontSize: 15),
+                              )
+                            ],
+                          ),
+                        ),
                       ),
-                      SizedBox(height: 15),
-                      Text(
-                        'Select your image',
-                        style: TextStyle(fontSize: 15),
-                      )
-                    ],
-                  ),
-                ),
-              ),
+                    ),
               const SizedBox(height: 20),
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
