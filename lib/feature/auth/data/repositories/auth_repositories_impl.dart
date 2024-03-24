@@ -2,7 +2,7 @@
 
 import 'package:blog_app_clean_architecture/core/error/exceptions.dart';
 import 'package:blog_app_clean_architecture/feature/auth/data/models/user_model.dart';
-import 'package:blog_app_clean_architecture/feature/auth/domain/entities/user.dart';
+import 'package:blog_app_clean_architecture/core/common/entities/user.dart';
 import 'package:fpdart/src/either.dart';
 
 import 'package:blog_app_clean_architecture/core/error/failures.dart';
@@ -43,6 +43,19 @@ class AuthRepositoryImpl implements AuthRepository {
       return right(user);
     } on sb.AuthException catch (error) {
       return left(Failure(error.message));
+    } on ServerException catch (error) {
+      return left(Failure(error.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, User>> currentUser() async {
+    try {
+      final user = await remoteDataSource.getCurrentUserData();
+      if (user == null) {
+        return left(Failure('User not logged in!'));
+      }
+      return right(user);
     } on ServerException catch (error) {
       return left(Failure(error.message));
     }
